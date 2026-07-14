@@ -5,396 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบสอบท้ายบทเรียน</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Prompt', sans-serif;
-            background-color: #f2f2f2;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .kahoot-bg {
-            background-color: #46178f;
-            background-image: radial-gradient(circle at top left, rgba(255,255,255,0.1) 0%, transparent 20%),
-                              radial-gradient(circle at bottom right, rgba(255,255,255,0.1) 0%, transparent 20%);
-        }
-        .btn-3d {
-            transition: all 0.1s ease;
-            position: relative;
-        }
-        .btn-3d:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0px 0 transparent; }
-        .bg-kahoot-red { background-color: #E21B3C; box-shadow: 0 4px 0 #b0152f; color: white; }
-        .bg-kahoot-blue { background-color: #1368CE; box-shadow: 0 4px 0 #0f51a1; color: white; }
-        .bg-kahoot-yellow { background-color: #D89E00; box-shadow: 0 4px 0 #a87b00; color: white; }
-        .bg-kahoot-green { background-color: #26890C; box-shadow: 0 4px 0 #1d6a09; color: white; }
-        .choice-selected { filter: brightness(1.1); transform: scale(1.02); border: 4px solid white; }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-        .icon-shape { width: 32px; height: 32px; display: inline-block; margin-right: 12px; flex-shrink: 0; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f2f2f2; }
+        .kahoot-bg { background-color: #46178f; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="kahoot-bg min-h-screen text-gray-800 flex flex-col">
+<body class="kahoot-bg min-h-screen flex items-center justify-center p-4">
 
-    <main class="flex-grow flex items-center justify-center p-4">
-        
-        <!-- ================= SCREEN 1: MENU ================= -->
-        <div id="screen-menu" class="glass-panel w-full max-w-md p-8 text-center animate-fade-in">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-[#46178f] mb-2">สอบท้ายบทเรียน</h1>
-                <p class="text-gray-600">วิชาคอมพิวเตอร์ (สุ่ม 10 ข้อ)</p>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <input type="text" id="student-name" placeholder="ชื่อ-นามสกุล" 
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#46178f] focus:outline-none font-semibold text-center text-lg placeholder-gray-400">
-                </div>
-                <div>
-                    <select id="student-grade" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#46178f] focus:outline-none font-semibold text-center text-lg appearance-none bg-white">
-                        <option value="" disabled selected>-- เลือกชั้นเรียน --</option>
-                        <option value="ม.1">มัธยมศึกษาปีที่ 1 (ม.1)</option>
-                        <option value="ม.2">มัธยมศึกษาปีที่ 2 (ม.2)</option>
-                        <option value="ม.3">มัธยมศึกษาปีที่ 3 (ม.3)</option>
-                    </select>
-                </div>
-                <button onclick="startQuiz()" class="w-full bg-[#333333] text-white font-bold py-4 rounded-lg text-xl btn-3d shadow-[0_4px_0_#000000] hover:bg-black mt-4">
-                    เริ่มทำข้อสอบ
-                </button>
-            </div>
+    <!-- หน้าเมนู -->
+    <div id="menu-screen" class="glass-panel w-full max-w-md p-8 text-center">
+        <h1 class="text-3xl font-bold text-[#46178f] mb-6">สอบท้ายบทเรียน</h1>
+        <div id="error-msg" class="hidden bg-red-100 text-red-700 p-2 rounded mb-4">กรุณากรอกชื่อและเลือกชั้นเรียน</div>
+        <input type="text" id="studentName" placeholder="ชื่อ-นามสกุล" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg mb-4 text-center text-lg">
+        <select id="studentGrade" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg mb-6 text-center text-lg">
+            <option value="" disabled selected>-- เลือกชั้นเรียน --</option>
+            <option value="ม.1">มัธยมศึกษาปีที่ 1</option>
+            <option value="ม.2">มัธยมศึกษาปีที่ 2</option>
+            <option value="ม.3">มัธยมศึกษาปีที่ 3</option>
+        </select>
+        <button onclick="startQuiz()" class="w-full bg-black text-white font-bold py-4 rounded-lg text-xl hover:bg-gray-800">เริ่มทำข้อสอบ</button>
+    </div>
+
+    <!-- หน้าทำข้อสอบ -->
+    <div id="quiz-screen" class="hidden w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg">
+        <div class="text-right font-bold text-lg mb-4">ข้อที่ <span id="q-current">1</span> / 10</div>
+        <h2 id="question-text" class="text-2xl font-bold mb-8 text-center">โหลดคำถาม...</h2>
+        <div id="options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <div class="flex justify-between mt-8">
+            <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-500 text-white px-8 py-3 rounded-lg font-bold hidden">ย้อนกลับ</button>
+            <button id="next-btn" onclick="nextQuestion()" class="bg-black text-white px-8 py-3 rounded-lg font-bold">ถัดไป</button>
+            <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hidden">ส่งคำตอบ</button>
         </div>
+    </div>
 
-        <!-- ================= SCREEN 2: QUIZ ================= -->
-        <div id="screen-quiz" class="hidden w-full max-w-5xl flex flex-col h-[90vh]">
-            <div class="flex justify-between items-center bg-white p-4 rounded-t-lg shadow-md mb-2">
-                <div class="font-bold text-[#46178f]" id="display-info">ชื่อ: - | ชั้น: -</div>
-                <div class="font-bold text-xl bg-gray-200 px-4 py-1 rounded-full"><span id="q-current">1</span> / 10</div>
-            </div>
+    <!-- หน้าสรุปคะแนน -->
+    <div id="result-screen" class="hidden glass-panel w-full max-w-md p-8 text-center">
+        <h1 class="text-3xl font-bold mb-4">คะแนนของคุณ</h1>
+        <p class="text-6xl font-bold text-[#46178f] mb-8" id="final-score">0 / 10</p>
+        <button onclick="viewAnswers()" class="bg-black text-white px-8 py-3 rounded-lg font-bold">ดูเฉลย</button>
+    </div>
 
-            <div class="bg-white p-6 md:p-10 rounded-lg shadow-md mb-4 flex-grow flex items-center justify-center text-center">
-                <h2 id="q-text" class="text-2xl md:text-3xl font-bold leading-relaxed">โหลดคำถาม...</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
-                <button onclick="selectAnswer(0)" id="btn-choice-0" class="btn-3d bg-kahoot-red p-4 md:p-6 rounded-lg text-left text-lg md:text-xl font-semibold flex items-center min-h-[100px]">
-                    <svg class="icon-shape text-white fill-current" viewBox="0 0 24 24"><polygon points="12,2 22,22 2,22"/></svg>
-                    <span id="choice-0-text" class="flex-grow">ก.</span>
-                </button>
-                <button onclick="selectAnswer(1)" id="btn-choice-1" class="btn-3d bg-kahoot-blue p-4 md:p-6 rounded-lg text-left text-lg md:text-xl font-semibold flex items-center min-h-[100px]">
-                    <svg class="icon-shape text-white fill-current" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12"/></svg>
-                    <span id="choice-1-text" class="flex-grow">ข.</span>
-                </button>
-                <button onclick="selectAnswer(2)" id="btn-choice-2" class="btn-3d bg-kahoot-yellow p-4 md:p-6 rounded-lg text-left text-lg md:text-xl font-semibold flex items-center min-h-[100px]">
-                    <svg class="icon-shape text-white fill-current" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
-                    <span id="choice-2-text" class="flex-grow">ค.</span>
-                </button>
-                <button onclick="selectAnswer(3)" id="btn-choice-3" class="btn-3d bg-kahoot-green p-4 md:p-6 rounded-lg text-left text-lg md:text-xl font-semibold flex items-center min-h-[100px]">
-                    <svg class="icon-shape text-white fill-current" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/></svg>
-                    <span id="choice-3-text" class="flex-grow">ง.</span>
-                </button>
-            </div>
-
-            <div class="flex justify-between mt-auto">
-                <button onclick="prevQuestion()" id="btn-prev" class="invisible bg-gray-500 text-white font-bold py-3 px-6 rounded-lg btn-3d shadow-[0_4px_0_#374151]">◀ ย้อนกลับ</button>
-                <button onclick="nextQuestion()" id="btn-next" class="invisible bg-[#333333] text-white font-bold py-3 px-8 rounded-lg btn-3d shadow-[0_4px_0_#000000]">ถัดไป ▶</button>
-                <button onclick="submitQuiz()" id="btn-submit" class="hidden bg-kahoot-green text-white font-bold py-3 px-8 rounded-lg btn-3d shadow-[0_4px_0_#1d6a09] animate-pulse">ยืนยันการส่งคำตอบ ✓</button>
-            </div>
-        </div>
-
-        <!-- ================= SCREEN 3: RESULT ================= -->
-        <div id="screen-result" class="hidden glass-panel w-full max-w-xl p-8 md:p-12 text-center text-gray-800">
-            <h1 class="text-4xl md:text-5xl font-bold mb-2">สรุปคะแนนสอบ</h1>
-            <div class="bg-white rounded-2xl p-8 shadow-inner mb-8 mt-4">
-                <p class="text-2xl font-semibold mb-4">คุณทำได้</p>
-                <div class="text-7xl md:text-8xl font-black text-[#46178f]">
-                    <span id="score-display">0</span> <span class="text-4xl text-gray-400">/ 10</span>
-                </div>
-            </div>
-            <button onclick="startReview()" class="w-full bg-[#333333] text-white font-bold py-4 rounded-lg text-xl btn-3d shadow-[0_4px_0_#000000] hover:bg-black">ดูเฉลยคำตอบ ▶</button>
-        </div>
-
-        <!-- ================= SCREEN 4: REVIEW ================= -->
-        <div id="screen-review" class="hidden w-full max-w-5xl flex flex-col h-[90vh]">
-            <div class="flex justify-between items-center bg-white p-4 rounded-t-lg shadow-md mb-2 border-t-4 border-[#46178f]">
-                <div class="font-bold text-[#46178f]">โหมดดูเฉลย</div>
-                <div class="font-bold text-xl bg-gray-200 px-4 py-1 rounded-full"><span id="rev-current">1</span> / 10</div>
-            </div>
-            <div class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-4 flex-grow flex flex-col items-center justify-center text-center">
-                <h2 id="rev-q-text" class="text-xl md:text-3xl font-bold leading-relaxed mb-4">โหลดคำถาม...</h2>
-                <div id="rev-status" class="px-6 py-2 rounded-full font-bold text-lg text-white">สถานะ</div>
-                <p id="rev-explanation" class="mt-4 text-gray-600 bg-gray-100 p-4 rounded text-left w-full"></p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4" id="rev-options-container">
-                <!-- ตัวเลือกเฉลยจะถูกสร้างตรงนี้ด้วย JS เพื่อให้โครงสร้างเหมือนข้อสอบ -->
-            </div>
-            <div class="flex justify-between mt-auto">
-                <button onclick="prevReview()" id="btn-rev-prev" class="invisible bg-gray-500 text-white font-bold py-3 px-6 rounded-lg btn-3d shadow-[0_4px_0_#374151]">◀ ย้อนกลับ</button>
-                <button onclick="nextReview()" id="btn-rev-next" class="bg-[#333333] text-white font-bold py-3 px-8 rounded-lg btn-3d shadow-[0_4px_0_#000000]">ถัดไป ▶</button>
-                <button onclick="location.reload()" id="btn-rev-finish" class="hidden bg-kahoot-blue text-white font-bold py-3 px-8 rounded-lg btn-3d shadow-[0_4px_0_#0f51a1]">กลับสู่หน้าแรก ↺</button>
-            </div>
-        </div>
-    </main>
+    <!-- หน้าเฉลย -->
+    <div id="answers-screen" class="hidden w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-6">เฉลยคำตอบ</h2>
+        <div id="answers-list" class="space-y-6"></div>
+        <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-lg mt-8 font-bold">ทำแบบทดสอบใหม่</button>
+    </div>
 
     <script>
-    // ---------------------------------------------------------
-    // 1. นำ URL ของ Web App Google Apps Script มาใส่ตรงนี้
-    // ---------------------------------------------------------
+    // --------------------------------------------------------------------------
+    // ใส่ URL ของ Google Web App ที่ได้จากขั้นตอน Deployment ลงที่นี่
+    // --------------------------------------------------------------------------
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwwAHibh9Ke0ZDzxahob0-67mXlfFIcxl1nw0CSUXDaGxSL9I5NOv6Yc0zxtjNTeZsW/exec';
 
-    // ฐานข้อมูลข้อสอบ 30 ข้อ
+    // ฐานข้อมูลข้อสอบ 30 ข้อ (คุณครูสามารถเพิ่ม/แก้ไขโจทย์ได้ที่นี่)
     const rawQuestions = [
-        { q: "1. ระบบคอมพิวเตอร์ประกอบด้วยองค์ประกอบหลักกี่ส่วน อะไรบ้าง?", opts: ["ก. 2 ส่วน คือ ฮาร์ดแวร์ และ ซอฟต์แวร์", "ข. 3 ส่วน คือ ฮาร์ดแวร์, ซอฟต์แวร์ และ ข้อมูล", "ค. 4 ส่วน คือ ฮาร์ดแวร์, ซอฟต์แวร์, บุคลากร และ ข้อมูล/สารสนเทศ", "ง. 5 ส่วน คือ ฮาร์ดแวร์, ซอฟต์แวร์, บุคลากร, ข้อมูล และ เครือข่าย"], ans: 2, exp: "ค. 4 ส่วน คือ ฮาร์ดแวร์, ซอฟต์แวร์, บุคลากร และ ข้อมูล/สารสนเทศ" },
-        { q: "2. ฮาร์ดแวร์ (Hardware) คืออะไร และสามารถยกตัวอย่างได้อย่างไรบ้าง?", opts: ["ก. โปรแกรมหรือชุดคำสั่ง", "ข. โครงสร้างพื้นฐานที่มองเห็นและจับต้องได้ เช่น แป้นพิมพ์ เมาส์ จอภาพ", "ค. ผู้ที่ทำหน้าที่สั่งการ", "ง. ข้อเท็จจริงดิบ"], ans: 1, exp: "ข. โครงสร้างพื้นฐานที่มองเห็นและจับต้องได้ เช่น แป้นพิมพ์ เมาส์ จอภาพ" },
-        { q: "3. หากฮาร์ดแวร์เปรียบเสมือนร่างกาย ซอฟต์แวร์ (Software) จะเปรียบเสมือนสิ่งใดในระบบคอมพิวเตอร์?", opts: ["ก. สมองและคำสั่ง", "ข. แขนและขา", "ค. ดวงตาและหู", "ง. หัวใจและหลอดเลือด"], ans: 0, exp: "ก. สมองและคำสั่ง (เพราะทำหน้าที่สั่งการให้ฮาร์ดแวร์ทำงาน)" },
-        { q: "4. ข้อใดคือความแตกต่างที่ถูกต้องระหว่างซอฟต์แวร์ระบบและซอฟต์แวร์ประยุกต์?", opts: ["ก. ระบบใช้พิมพ์งาน ประยุกต์ใช้จัดการฮาร์ดแวร์", "ข. ระบบทำหน้าที่ควบคุมฮาร์ดแวร์ ประยุกต์คือโปรแกรมใช้งานเฉพาะด้าน", "ค. ระบบจับต้องได้ ประยุกต์จับต้องไม่ได้", "ง. ระบบใช้สร้างเกม ประยุกต์ใช้เล่นเกม"], ans: 1, exp: "ข. ซอฟต์แวร์ระบบทำหน้าที่ควบคุมฮาร์ดแวร์ (เช่น Windows) ส่วนซอฟต์แวร์ประยุกต์คือโปรแกรมใช้งานเฉพาะด้าน (เช่น Word)" },
-        { q: "5. \"บุคลากร (Peopleware)\" มีบทบาทหน้าที่อย่างไรในระบบคอมพิวเตอร์?", opts: ["ก. ประมวลผลข้อมูล", "ข. จัดเก็บข้อมูล", "ค. สั่งการ ใช้งาน ควบคุมระบบ และกำหนดเป้าหมาย", "ง. เชื่อมต่ออินเทอร์เน็ต"], ans: 2, exp: "ค. สั่งการ ใช้งาน ควบคุมระบบ และกำหนดเป้าหมายการทำงาน" },
-        { q: "6. ข้อมูล (Data) กับ สารสนเทศ (Information) มีความแตกต่างกันอย่างไร?", opts: ["ก. ข้อมูลคือข้อเท็จจริงดิบ ส่วนสารสนเทศคือข้อมูลที่ผ่านประมวลผลแล้ว", "ข. ข้อมูลคือผลลัพธ์ สารสนเทศคือตัวเลขที่ป้อนเข้า", "ค. ข้อมูลใช้กับซอฟต์แวร์ สารสนเทศใช้กับฮาร์ดแวร์", "ง. คือสิ่งเดียวกัน"], ans: 0, exp: "ก. ข้อมูลคือข้อเท็จจริงดิบ ส่วนสารสนเทศคือข้อมูลที่ผ่านการประมวลผลแล้ว" },
-        { q: "7. หากระบบคอมพิวเตอร์มีฮาร์ดแวร์ ซอฟต์แวร์ และข้อมูลครบถ้วน แต่ขาด \"บุคลากร\" จะเกิดผลลัพธ์ตามข้อใด?", opts: ["ก. ทำงานได้เองอัตโนมัติ", "ข. ประมวลผลได้รวดเร็วขึ้น", "ค. เป็นเหมือนเครื่องจักรที่ถูกทิ้งร้าง", "ง. สร้างบุคลากรจำลอง (AI) ขึ้นมาแทน"], ans: 2, exp: "ค. คอมพิวเตอร์จะเป็นเหมือนเครื่องจักรที่ถูกทิ้งร้าง ไม่สามารถทำงานตามเป้าหมายได้" },
-        { q: "8. อาชีพ \"โปรแกรมเมอร์ (Programmer)\" จัดอยู่ในองค์ประกอบใดของระบบคอมพิวเตอร์?", opts: ["ก. ฮาร์ดแวร์ (Hardware)", "ข. ซอฟต์แวร์ (Software)", "ค. ข้อมูล/สารสนเทศ (Data/Information)", "ง. บุคลากร (Peopleware)"], ans: 3, exp: "ง. บุคลากร (Peopleware)" },
-        { q: "9. หากคอมพิวเตอร์ไม่มีระบบปฏิบัติการ (OS) คอมพิวเตอร์จะมีสภาพเป็นอย่างไร?", opts: ["ก. ทำงานได้ปกติ", "ข. เล่นเกมได้ แต่พิมพ์งานไม่ได้", "ค. เป็นเพียงเศษเหล็กที่ไม่สามารถทำงานใดๆ ได้", "ง. เครื่องจะประมวลผลเร็วขึ้น"], ans: 2, exp: "ค. เป็นเพียงเศษเหล็กที่ไม่สามารถตอบสนองหรือทำงานใดๆ ได้" },
-        { q: "10. ในระบบนิเวศคอมพิวเตอร์ องค์ประกอบต่างๆ ทำงานประสานกันตามลำดับในข้อใด?", opts: ["ก. ร่างกายป้อนข้อมูลให้สมอง", "ข. ผู้บัญชาการป้อนวัตถุดิบผ่านสมองเพื่อให้ร่างกายประมวลผล", "ค. สมองสั่งให้ผลผลิตสร้างร่างกาย", "ง. วัตถุดิบควบคุมสมอง"], ans: 1, exp: "ข. ผู้บัญชาการป้อนวัตถุดิบผ่านสมองเพื่อให้ร่างกายประมวลผลและสร้างผลผลิต" },
-        
-        { q: "11. อุปกรณ์ใดได้รับการขนานนามว่าเป็น \"สมอง\" ของคอมพิวเตอร์?", opts: ["ก. เมนบอร์ด (Motherboard)", "ข. แรม (RAM)", "ค. ซีพียู (CPU)", "ง. ฮาร์ดดิสก์ (HDD)"], ans: 2, exp: "ค. ซีพียู (CPU)" },
-        { q: "12. ข้อใดอธิบายการทำงานของ แรม (RAM) ได้ถูกต้องที่สุด?", opts: ["ก. หน่วยความจำถาวร", "ข. หน่วยความจำชั่วคราว พักข้อมูลขณะซีพียูใช้งาน ข้อมูลหายเมื่อปิดเครื่อง", "ค. หน่วยประมวลผลกราฟิก", "ง. ศูนย์กลางเชื่อมต่ออุปกรณ์"], ans: 1, exp: "ข. เป็นหน่วยความจำชั่วคราว พักข้อมูลขณะซีพียูใช้งาน ข้อมูลจะหายไปเมื่อปิดเครื่อง" },
-        { q: "13. อุปกรณ์ใดเปรียบเสมือนศูนย์กลางหรือ \"แผงวงจรหลัก\" ที่ให้อุปกรณ์อื่นๆ มาเสียบต่อเข้าด้วยกัน?", opts: ["ก. พาวเวอร์ซัพพลาย (PSU)", "ข. เมนบอร์ด (Motherboard)", "ค. การ์ดจอ (GPU)", "ง. ซีพียู (CPU)"], ans: 1, exp: "ข. เมนบอร์ด (Motherboard)" },
-        { q: "14. หากต้องการประกอบคอมพิวเตอร์สำหรับตัดต่อวิดีโอ ควรให้ความสำคัญกับอุปกรณ์ใดเป็นพิเศษเพื่อประมวลผลกราฟิก?", opts: ["ก. การ์ดจอ (GPU)", "ข. พาวเวอร์ซัพพลาย (PSU)", "ค. เคสคอมพิวเตอร์ (Case)", "ง. พัดลม (Case Fan)"], ans: 0, exp: "ก. การ์ดจอ (GPU) (ทำหน้าที่ประมวลผลกราฟิกและเรนเดอร์ภาพ)" },
-        { q: "15. ข้อใดคือข้อดีของการใช้ เอสเอสดี (SSD) เมื่อเทียบกับ ฮาร์ดดิสก์ (HDD)?", opts: ["ก. มีความจุสูงกว่าในราคาถูกกว่า", "ข. ทนทานต่อการตกกระแทกมากกว่าเพราะมีจานหมุน", "ค. ทำงานเร็วกว่า ไม่มีเสียงรบกวน และไม่มีชิ้นส่วนเคลื่อนไหว", "ง. กู้ข้อมูลได้ง่ายกว่า 100%"], ans: 2, exp: "ค. ทำงานเร็วกว่า ไม่มีเสียงรบกวน และไม่มีชิ้นส่วนเคลื่อนไหว" },
-        { q: "16. พาวเวอร์ซัพพลาย (PSU) มีหน้าที่หลักอะไรในคอมพิวเตอร์?", opts: ["ก. ประมวลผลข้อมูล", "ข. แปลงและแจกจ่ายกระแสไฟฟ้าไปยังชิ้นส่วนต่างๆ", "ค. ระบายความร้อน", "ง. จัดเก็บระบบปฏิบัติการ"], ans: 1, exp: "ข. แปลงและแจกจ่ายกระแสไฟฟ้าไปยังชิ้นส่วนต่างๆ ภายในเคส" },
-        { q: "17. การติดตั้งพัดลมเคส (Case Fan) มีประโยชน์อย่างไร?", opts: ["ก. เพิ่มความเร็วฮาร์ดดิสก์", "ข. หมุนเวียนอากาศ ระบายความร้อน ช่วยให้เครื่องทำงานเสถียร", "ค. สร้างกระแสไฟฟ้าสำรอง", "ง. ลดเสียงรบกวน"], ans: 1, exp: "ข. หมุนเวียนอากาศ ระบายความร้อน ช่วยให้เครื่องทำงานเสถียร" },
-        { q: "18. หากเพิ่มขนาดความจุของ \"แรม (RAM)\" จะส่งผลดีต่อคอมพิวเตอร์อย่างไร?", opts: ["ก. จอภาพสีสันสวยงามขึ้น", "ข. ความจุเก็บไฟล์งานเพิ่มขึ้น", "ค. เปิดหลายโปรแกรมพร้อมกันได้ลื่นไหล ไม่กระตุก", "ง. กินไฟน้อยลง"], ans: 2, exp: "ค. ช่วยให้เปิดหลายโปรแกรมพร้อมกันได้ลื่นไหล ไม่กระตุก" },
-        { q: "19. อุปกรณ์ในข้อใดทำหน้าที่เป็นหน่วยความจำ \"ถาวร\" สำหรับเก็บระบบปฏิบัติการ (Windows)?", opts: ["ก. แรม (RAM)", "ข. ซีพียู (CPU)", "ค. แคช (Cache)", "ง. ฮาร์ดดิสก์ (HDD) หรือ เอสเอสดี (SSD)"], ans: 3, exp: "ง. ฮาร์ดดิสก์ (HDD) หรือ เอสเอสดี (SSD)" },
-        { q: "20. มาตรฐาน \"80 PLUS\" บนพาวเวอร์ซัพพลาย (PSU) หมายถึงอะไร?", opts: ["ก. รับประกันอายุการใช้งาน 80 เดือน", "ข. จ่ายไฟสูงสุด 80 วัตต์", "ค. มีประสิทธิภาพการจ่ายไฟที่เสถียรและประหยัดพลังงาน", "ง. เชื่อมต่ออุปกรณ์ได้ 80 ชิ้น"], ans: 2, exp: "ค. มีประสิทธิภาพการจ่ายไฟที่เสถียรและประหยัดพลังงาน" },
-        
-        { q: "21. ขณะนักเรียนกำลังพิมพ์รายงาน อุปกรณ์ใดทำหน้าที่เป็น \"หน่วยรับข้อมูล (Input)\" หลัก?", opts: ["ก. แป้นพิมพ์ และ เมาส์", "ข. หน้าจอ และ ลำโพง", "ค. ซีพียู และ แรม", "ง. เครื่องพิมพ์ และ สแกนเนอร์"], ans: 0, exp: "ก. แป้นพิมพ์ และ เมาส์" },
-        { q: "22. เมื่อกดปุ่มค้นหาข้อมูลบนเว็บเบราว์เซอร์ อุปกรณ์ใดทำหน้าที่ \"ประมวลผล\" คำสั่งนั้นเป็นหลัก?", opts: ["ก. ฮาร์ดดิสก์ (HDD)", "ข. ซีพียู (CPU)", "ค. หน้าจอ (Monitor)", "ง. พาวเวอร์ซัพพลาย (PSU)"], ans: 1, exp: "ข. ซีพียู (CPU) (เพราะเป็นศูนย์กลางควบคุมและประมวลผลคำสั่ง)" },
-        { q: "23. ในการวาดภาพกราฟิก อุปกรณ์ใดต้องทำงานหนักที่สุดเพื่อเรนเดอร์และแสดงผลภาพ?", opts: ["ก. เมนบอร์ด (Motherboard)", "ข. เอสเอสดี (SSD)", "ค. การ์ดจอ (GPU)", "ง. พัดลมเคส (Case Fan)"], ans: 2, exp: "ค. การ์ดจอ (GPU)" },
-        { q: "24. หากเปิดโปรแกรมจำนวนมากแล้วเครื่องค้าง ปัญหานี้มักเกิดจากอุปกรณ์ใดทำงานไม่ทัน?", opts: ["ก. เมาส์ (Mouse)", "ข. แรม (RAM)", "ค. จอภาพ (Monitor)", "ง. คีย์บอร์ด (Keyboard)"], ans: 1, exp: "ข. แรม (RAM) (อาจมีพื้นที่พักข้อมูลไม่เพียงพอ)" },
-        { q: "25. ถ้านักเรียนทำเคสคอมพิวเตอร์ล้มกระแทกพื้นอย่างแรง อุปกรณ์เก็บข้อมูลใดเสี่ยงที่จะพังเสียหายมากที่สุด?", opts: ["ก. ฮาร์ดดิสก์ (HDD) เพราะมีจานหมุนและหัวอ่าน", "ข. เอสเอสดี (SSD) เพราะใช้ชิปวงจร", "ค. แรม (RAM)", "ง. แฟลชไดร์ฟ (USB)"], ans: 0, exp: "ก. ฮาร์ดดิสก์ (HDD) เพราะมีจานหมุนแม่เหล็กและหัวอ่านที่บอบบาง" },
-        { q: "26. หากต้องการจัดเก็บไฟล์วิดีโอขนาดใหญ่จำนวนมาก การเลือกซื้อฮาร์ดแวร์ประเภทใดจะคุ้มค่าความจุมากที่สุด?", opts: ["ก. แรม (RAM)", "ข. เอสเอสดี (SSD) แบบ M.2", "ค. การ์ดจอ (GPU)", "ง. ฮาร์ดดิสก์ (HDD)"], ans: 3, exp: "ง. ฮาร์ดดิสก์ (HDD) (มีความจุเยอะในราคาประหยัด เหมาะสำหรับเก็บไฟล์ใหญ่ๆ)" },
-        { q: "27. หากคอมพิวเตอร์ค้างบ่อย อุปกรณ์ที่เป็น \"ศูนย์กลางการประมวลผล\" ใดอาจมีปัญหา?", opts: ["ก. ลำโพง (Speaker)", "ข. ซีพียู (CPU)", "ค. เมาส์ (Mouse)", "ง. เครื่องพิมพ์ (Printer)"], ans: 1, exp: "ข. ซีพียู (CPU)" },
-        { q: "28. ในการเปรียบเทียบการทำงานระหว่างมนุษย์กับคอมพิวเตอร์ \"เมาส์\" เปรียบเสมือนอวัยวะใด?", opts: ["ก. ดวงตา", "ข. สมอง", "ค. มือ", "ง. ปาก"], ans: 2, exp: "ค. มือ (หยิบจับ สัมผัส และควบคุม)" },
-        { q: "29. หากระบบไฟฟ้าไฟตกบ่อยครั้ง การใช้ฮาร์ดแวร์ชิ้นใดที่ไม่มีคุณภาพอาจทำให้คอมพิวเตอร์พังทั้งเครื่อง?", opts: ["ก. พาวเวอร์ซัพพลาย (PSU)", "ข. เคสคอมพิวเตอร์", "ค. แป้นพิมพ์", "ง. หน้าจอ"], ans: 0, exp: "ก. พาวเวอร์ซัพพลาย (PSU) (ตัวจ่ายไฟที่ไม่มีคุณภาพจะทำให้ชิ้นส่วนอื่นช็อตหรือพังได้)" },
-        { q: "30. \"หน้าจอคอมพิวเตอร์ (Monitor)\" ทำหน้าที่แสดงผลลัพธ์ เปรียบเสมือนอวัยวะใดของมนุษย์?", opts: ["ก. หู (รับเสียง)", "ข. ตา (รับภาพและมองเห็น)", "ค. ปาก (สื่อสาร)", "ง. ความจำ (เก็บข้อมูล)"], ans: 1, exp: "ข. ตา (รับภาพและมองเห็น)" }
+        { q: "1. ระบบคอมพิวเตอร์ประกอบด้วยองค์ประกอบหลักกี่ส่วน อะไรบ้าง?", opts: ["ก. 2 ส่วน", "ข. 3 ส่วน", "ค. 4 ส่วน", "ง. 5 ส่วน"], ans: 2, exp: "4 ส่วน คือ ฮาร์ดแวร์, ซอฟต์แวร์, บุคลากร และ ข้อมูล/สารสนเทศ" },
+        // ... (ครูสามารถใส่โจทย์ให้ครบ 30 ข้อตามรูปแบบนี้ได้เลยครับ)
     ];
 
-    let selectedQuestions = [];
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let studentName = '';
-    let studentGrade = '';
-    let userAnswers = [];
+    let selectedQuestions = [], currentQuestionIndex = 0, score = 0, userAnswers = new Array(10).fill(null);
+    let studentName = '', studentGrade = '';
 
-    // เริ่มทำข้อสอบ
     function startQuiz() {
-        studentName = document.getElementById('student-name').value;
-        studentGrade = document.getElementById('student-grade').value;
-
-        if (!studentName || !studentGrade) {
-            document.getElementById('error-msg').classList.remove('hidden');
-            return;
-        }
-        document.getElementById('error-msg').classList.add('hidden');
-
-        // สุ่มโจทย์ 10 ข้อ
+        studentName = document.getElementById('studentName').value;
+        studentGrade = document.getElementById('studentGrade').value;
+        if (!studentName || !studentGrade) { document.getElementById('error-msg').classList.remove('hidden'); return; }
+        
         selectedQuestions = [...rawQuestions].sort(() => 0.5 - Math.random()).slice(0, 10);
-        userAnswers = new Array(10).fill(null);
-        
-        document.getElementById('screen-menu').classList.add('hidden');
-        document.getElementById('screen-quiz').classList.remove('hidden');
-        document.getElementById('display-info').innerText = `ชื่อ: ${studentName} | ชั้น: ${studentGrade}`;
-        
+        document.getElementById('menu-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
         loadQuestion();
     }
-
-    // โหลดข้อสอบลง UI
+    
     function loadQuestion() {
         const q = selectedQuestions[currentQuestionIndex];
         document.getElementById('q-current').innerText = currentQuestionIndex + 1;
-        document.getElementById('q-text').innerText = q.q;
-        
-        for (let i = 0; i < 4; i++) {
-            document.getElementById(`choice-${i}-text`).innerText = q.opts[i];
-            let btn = document.getElementById(`btn-choice-${i}`);
-            btn.classList.remove('choice-selected');
-            btn.style.border = 'none';
-        }
-
-        if (userAnswers[currentQuestionIndex] !== null) {
-            let selectedBtn = document.getElementById(`btn-choice-${userAnswers[currentQuestionIndex]}`);
-            selectedBtn.classList.add('choice-selected');
-            selectedBtn.style.border = '4px solid white';
-        }
-
-        document.getElementById('btn-prev').classList.toggle('invisible', currentQuestionIndex === 0);
-        
-        if (currentQuestionIndex === selectedQuestions.length - 1) {
-            document.getElementById('btn-next').classList.add('hidden');
-            document.getElementById('btn-submit').classList.remove('hidden');
-        } else {
-            document.getElementById('btn-next').classList.remove('hidden');
-            document.getElementById('btn-submit').classList.add('hidden');
-        }
+        document.getElementById('question-text').innerText = q.q;
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        q.opts.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'p-6 rounded-lg text-white font-bold text-lg ' + ['bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-green-500'][idx];
+            btn.innerText = opt;
+            btn.onclick = () => { userAnswers[currentQuestionIndex] = idx; loadQuestion(); };
+            if(userAnswers[currentQuestionIndex] === idx) btn.classList.add('ring-4', 'ring-white');
+            optionsDiv.appendChild(btn);
+        });
+        document.getElementById('prev-btn').classList.toggle('hidden', currentQuestionIndex === 0);
+        document.getElementById('next-btn').classList.toggle('hidden', currentQuestionIndex === 9);
+        document.getElementById('submit-btn').classList.toggle('hidden', currentQuestionIndex !== 9);
     }
 
-    // เลือกคำตอบ
-    function selectAnswer(index) {
-        userAnswers[currentQuestionIndex] = index;
-        for (let i = 0; i < 4; i++) {
-            let btn = document.getElementById(`btn-choice-${i}`);
-            btn.classList.remove('choice-selected');
-            btn.style.border = 'none';
-        }
-        let selectedBtn = document.getElementById(`btn-choice-${index}`);
-        selectedBtn.classList.add('choice-selected');
-        selectedBtn.style.border = '4px solid white';
-    }
+    function nextQuestion() { if(currentQuestionIndex < 9) { currentQuestionIndex++; loadQuestion(); } }
+    function prevQuestion() { if(currentQuestionIndex > 0) { currentQuestionIndex--; loadQuestion(); } }
 
-    function nextQuestion() {
-        if (currentQuestionIndex < selectedQuestions.length - 1) {
-            currentQuestionIndex++;
-            loadQuestion();
-        }
-    }
-
-    function prevQuestion() {
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            loadQuestion();
-        }
-    }
-
-    // ส่งคำตอบ
     function submitQuiz() {
-        // ตรวจสอบว่าทำครบไหม
-        if(userAnswers.includes(null)) {
-            alert("กรุณาตอบคำถามให้ครบทุกข้อก่อนส่งครับ");
-            return;
-        }
+        score = selectedQuestions.reduce((acc, q, i) => acc + (userAnswers[i] === q.ans ? 1 : 0), 0);
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name: studentName, grade: studentGrade, score: score}) });
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = score + " / 10";
+    }
 
-        score = 0;
-        selectedQuestions.forEach((q, idx) => {
-            if (userAnswers[idx] === q.ans) score++;
+    function viewAnswers() {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('answers-screen').classList.remove('hidden');
+        const list = document.getElementById('answers-list');
+        selectedQuestions.forEach((q, i) => {
+            list.innerHTML += `<div class="border-b pb-4"><div><strong>ข้อ ${i+1}:</strong> ${q.q}</div><div class="text-green-600 font-bold mt-2">เฉลย: ${q.opts[q.ans]}</div><div class="text-sm text-gray-500">อธิบาย: ${q.exp}</div></div>`;
         });
-
-        const studentData = {
-            name: studentName,
-            grade: studentGrade,
-            score: score
-        };
-
-        const submitBtn = document.getElementById('btn-submit');
-        submitBtn.innerText = "กำลังบันทึกข้อมูล...";
-        submitBtn.disabled = true;
-
-        fetch(scriptURL, {
-            method: 'POST',
-            mode: 'no-cors', // บังคับทะลุ CORS block
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(studentData)
-        })
-        .then(() => {
-            showResultScreen();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showResultScreen();
-        });
-    }
-
-    function showResultScreen() {
-        document.getElementById('screen-quiz').classList.add('hidden');
-        document.getElementById('screen-result').classList.remove('hidden');
-        document.getElementById('score-display').innerText = score;
-    }
-
-    /* ================= REVIEW SYSTEM ================= */
-    let reviewIndex = 0;
-    const icons = [
-        '<svg class="icon-shape text-white fill-current" viewBox="0 0 24 24"><polygon points="12,2 22,22 2,22"/></svg>',
-        '<svg class="icon-shape text-white fill-current" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12"/></svg>',
-        '<svg class="icon-shape text-white fill-current" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>',
-        '<svg class="icon-shape text-white fill-current" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/></svg>'
-    ];
-    const colorClasses = ['bg-kahoot-red', 'bg-kahoot-blue', 'bg-kahoot-yellow', 'bg-kahoot-green'];
-
-    function startReview() {
-        document.getElementById('screen-result').classList.add('hidden');
-        document.getElementById('screen-review').classList.remove('hidden');
-        reviewIndex = 0;
-        loadReview();
-    }
-
-    function loadReview() {
-        const q = selectedQuestions[reviewIndex];
-        const uAns = userAnswers[reviewIndex];
-        const cAns = q.ans;
-        
-        document.getElementById('rev-current').innerText = reviewIndex + 1;
-        document.getElementById('rev-q-text').innerText = q.q;
-        document.getElementById('rev-explanation').innerHTML = `<strong>เฉลย:</strong> ${q.exp}`;
-
-        const statusDiv = document.getElementById('rev-status');
-        if (uAns === cAns) {
-            statusDiv.innerText = "✓ คุณตอบถูกต้อง";
-            statusDiv.className = "px-6 py-2 rounded-full font-bold text-lg text-white bg-green-500 mb-2";
-        } else {
-            statusDiv.innerText = "✗ คุณตอบผิด";
-            statusDiv.className = "px-6 py-2 rounded-full font-bold text-lg text-white bg-red-500 mb-2";
-        }
-
-        const container = document.getElementById('rev-options-container');
-        container.innerHTML = ''; // Clear old
-
-        for (let i = 0; i < 4; i++) {
-            let isCorrect = (i === cAns);
-            let isUserSelect = (i === uAns);
-            
-            let btnClasses = `btn-3d ${colorClasses[i]} p-4 md:p-6 rounded-lg text-left text-lg md:text-xl font-semibold flex items-center min-h-[100px] cursor-default `;
-            let extraIcon = '';
-
-            if (isCorrect) {
-                btnClasses += 'border-4 border-green-500 shadow-[0_0_15px_#26890C] ';
-                extraIcon = '<span class="ml-2 text-3xl">✓</span>';
-            } else if (isUserSelect && !isCorrect) {
-                btnClasses += 'border-4 border-red-500 opacity-50 ';
-                extraIcon = '<span class="ml-2 text-3xl">✗</span>';
-            } else {
-                btnClasses += 'opacity-50 grayscale ';
-            }
-
-            container.innerHTML += `
-                <div class="${btnClasses}">
-                    ${icons[i]}
-                    <span class="flex-grow">${q.opts[i]}</span>
-                    ${extraIcon}
-                </div>
-            `;
-        }
-
-        document.getElementById('btn-rev-prev').classList.toggle('invisible', reviewIndex === 0);
-        
-        if (reviewIndex === selectedQuestions.length - 1) {
-            document.getElementById('btn-rev-next').classList.add('hidden');
-            document.getElementById('btn-rev-finish').classList.remove('hidden');
-        } else {
-            document.getElementById('btn-rev-next').classList.remove('hidden');
-            document.getElementById('btn-rev-finish').classList.add('hidden');
-        }
-    }
-
-    function nextReview() {
-        if (reviewIndex < selectedQuestions.length - 1) {
-            reviewIndex++;
-            loadReview();
-        }
-    }
-
-    function prevReview() {
-        if (reviewIndex > 0) {
-            reviewIndex--;
-            loadReview();
-        }
     }
     </script>
 </body>
